@@ -42,12 +42,18 @@ heap:        .half 0:2000
 .text
 main:
 # Construct interrupt mask
-	    li      $t4, 0
+	li      $t4, 0
         or      $t4, $t4, REQUEST_PUZZLE_INT_MASK # puzzle interrupt bit
         or      $t4, $t4, TIMER_INT_MASK	  # timer interrupt bit
         or      $t4, $t4, BONK_INT_MASK	  # timer interrupt bit
         or      $t4, $t4, 1                       # global enable
 	    mtc0    $t4, $12
+
+
+        li $a0,  62831
+        jal atan
+        
+
 
 #Fill in your code here
 
@@ -119,3 +125,62 @@ done:
         move    $at, $k1                # Restore $at
 .set at
         eret
+
+# a0 = expression value
+atan:
+        addi $sp, $sp, -12
+        sw $s0, 0($sp)
+        sw $s1, 4($sp)
+        sw $s2, 8($sp)
+
+        li $s0, 1 #n
+        li $s2, -1 #negative instruction
+        li $v0, 0 #sum
+
+
+        atan_loop:
+                bgt $s0, 3, atan_end
+                        mul $s1, 2, $s0
+                        addi $s1, $s1, 1
+                        move $a1, $s1
+
+                        jal power
+
+                        div $s1, $v0, $s1
+                        mul $s1, $s1, $s2
+                        mul $s2, $s2, -1
+
+                        add $v0, $v0, $s1
+                        addi $s0, $s0, 1
+
+                        j atan_loop
+        atan_end:
+                
+                lw $s0, 0($sp)
+                lw $s1, 4($sp)
+                lw $s2, 8($sp)
+                addi $sp, $sp, 12
+                jr $ra
+        
+
+
+
+
+# a0 = base
+# a1 = exponent
+power:
+        addi $sp, $sp, -4
+        sw $s0, 0($sp)
+
+
+        li $s0, 0 #i
+        li $v0, 1 #mul*sum
+        power_loop:
+                beq $s0, $a1, power_end
+                        mul $v0, $v0, $a0
+                        addi $s0, $s0, 1
+                        j power_loop 
+        power_end:
+                lw $s0, 0($sp)
+                addi $sp, $sp, 4
+                jr $ra
