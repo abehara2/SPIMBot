@@ -269,7 +269,7 @@ search_map_inner:
         
         jal     pythag
         bge     $v0,  $s2,  end_map_inner
-        # ble     $v0,  8,    end_map_inner  # DON'T go for corn within 8 pixels of us. If it's too close, we get issues with scheduling interrupts.
+        ble     $v0,  8,    end_map_inner  # DON'T go for corn within 8 pixels of us. If it's too close, we get issues with scheduling interrupts.
         mul     $s0,  $t0,  8
         mul     $s1,  $t2,  8
         add     $s0,  $s0,  4
