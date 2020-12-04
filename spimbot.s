@@ -117,20 +117,20 @@ scan_map:
        bne  $t3, 3, end_scan_map
  
        # Spawn minibot
-       li   $t4, 1
-       sw   $t4, SPAWN_MINIBOT
-       la   $t5, num_coins
-       lw   $t6, 0($t5)
-       sub  $t6, $t6, 2
-       sw   $t6, 0($t5) 
+#        li   $t4, 1
+#        sw   $t4, SPAWN_MINIBOT
+#        la   $t5, num_coins
+#        lw   $t6, 0($t5)
+#        sub  $t6, $t6, 2
+#        sw   $t6, 0($t5) 
 
        # Set minibot coords
-       div  $t3,  $t2,  40   # t3 = Y coordinate
-       rem  $t4,  $t2,  40   # t4 = X coordinate
-       sw   $0,   SELECT_IDLE_MINIBOTS
-       sll  $t4,  $t4,  4
-       or   $t4,  $t4,  $t3
-       sw   $t4,  SET_TARGET_TILE
+#        div  $t3,  $t2,  40   # t3 = Y coordinate
+#        rem  $t4,  $t2,  40   # t4 = X coordinate
+#        sw   $0,   SELECT_IDLE_MINIBOTS
+#        sll  $t4,  $t4,  4
+#        or   $t4,  $t4,  $t3
+#        sw   $t4,  SET_TARGET_TILE
 
        j    done_scanning
 
@@ -320,7 +320,7 @@ go_to_next_kernel:
         li      $s2,  900000            # s2 = best distance
 
 search_map_outer:
-        li      $t0,  14                # Lower x bound inclusive
+        li      $t0,  15                # Lower x bound inclusive
         bgt     $t2,  $t3,  end_search
 
 search_map_inner:
@@ -760,6 +760,26 @@ interrupt_dispatch:                     # Interrupt:
 
 bonk_interrupt:
         sw      $0, BONK_ACK
+        lw      $k0, BOT_X
+        bge     $k0, 160, move_left
+        li      $k1, 0
+        sw      $k1, ANGLE
+        li      $k1, 1
+        sw      $k1, ANGLE_CONTROL
+        j       finish_bonk
+
+move_left:
+        li      $k1, 180
+        sw      $k1, ANGLE
+        li      $k1, 1
+        sw      $k1, ANGLE_CONTROL
+
+finish_bonk:
+        lw      $k0, TIMER
+        add     $k0, 30000
+        sw      $k0, TIMER
+        li      $k1, 10
+        sw      $k1, VELOCITY
 #Fill in your code here
         j       interrupt_dispatch      # see if other interrupts are waiting
 
